@@ -47,7 +47,7 @@ public class Main {
         // Define the number of days to simulate
         int numberOfDays = 120;
         LocalDate currentDate = startDate;
-
+        System.out.println("#".repeat(10) + " Willkommen im SuperDuperMarkt! " + "#".repeat(10));
         // Simulate and print product details for each day
         for (int day = 1; day < numberOfDays; day++) {
             List<Product> removedProducts = shelf.removeExpiredProducts(currentDate);
