@@ -1,4 +1,4 @@
-<h1>Supermarket Inventory Management</h1>
+<h1>Supermarket Shelf Management</h1>
 
 <p>This Maven project provides a console application for managing supermarket inventory, including tracking product quality, pricing, and automatically removing expired or unsuitable products from the shelf.</p>
 
