@@ -18,5 +18,3 @@
 
 <li>Factory Method Pattern: Centralizes the creation of product instances based on specific rules.</li>
 </ol>
-
-These patterns contribute to structuring the code cleanly and facilitate the integration of new product rules and features.
