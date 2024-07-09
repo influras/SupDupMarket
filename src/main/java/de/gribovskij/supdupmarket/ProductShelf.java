@@ -10,8 +10,6 @@ import java.util.List;
  */
 public class ProductShelf {
 
-    private String description;
-
     private final List<Product> storedProducts;
 
     public ProductShelf(List<Product> storedProducts) {
@@ -52,10 +50,6 @@ public class ProductShelf {
     // Getter / Setter
     public List<Product> getStoredProducts() {
         return storedProducts;
-    }
- 
-    public String getDescription() {
-        return description;
     }
 
 }
