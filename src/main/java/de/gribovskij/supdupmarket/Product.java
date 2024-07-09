@@ -99,7 +99,7 @@ public class Product {
         if (getCurrentQuality(currentDate) < productRuleSet.getLowestQualityBoundary()) {
             return "Nein - Qualitaetsanforderung unterschritten - bitte aus dem Regal raeumen!";
         }
-        if (expiryDate.isBefore(currentDate)) {
+        if (expiryDate.isBefore(currentDate.plusDays(1))) {
             return "Nein - das Produkt ist abgelaufen - bitte aus dem Regal raeumen!";
         } else {
             return "Ja";
@@ -117,15 +117,15 @@ public class Product {
     public String toUserInfo(LocalDate currentDate) {
         String expiryDateString = expiryDate.equals(LocalDate.MAX) ? "kein Ablaufdatum" : expiryDate.toString();
 
-        return String.format(
-                "Produkt: %s\n"
-                + "Artikelgruppe: %s\n"
-                + "Grundpreis: %.2f Euro\n"
-                + "Ablaufdatum: %s\n"
-                + "Minimal zugelassene Qualitaet: %d\n"
-                + "Aktuelle Qualitaetswertung: %d\n"
-                + "Aktueller Tagespreis: %.2f Euro\n"
-                + "Marktfaehig: %s",
+        return String.format("""
+                             Produkt: %s
+                             Artikelgruppe: %s
+                             Grundpreis: %.2f Euro
+                             Ablaufdatum: %s
+                             Minimal zugelassene Qualitaet: %d
+                             Aktuelle Qualitaetswertung: %d
+                             Aktueller Tagespreis: %.2f Euro
+                             Marktfaehig: %s""",
                 name,
                 productGroup.getUserFriendlyName(),
                 basePrice,
