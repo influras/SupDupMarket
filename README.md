@@ -9,31 +9,6 @@
     <li>Update product information daily.</li>
 </ul>
 
-<h1>Installation</h1>
-<ol>
-    <li>Clone the repository:
-        <pre><code>git clone https://github.com/yourusername/supdupmarket.git</code></pre>
-    </li>
-    <li>Navigate to the project directory:
-        <pre><code>cd supdupmarket</code></pre>
-    </li>
-    <li>Compile and package the project using Maven:
-        <pre><code>mvn clean package</code></pre>
-    </li>
-</ol>
-
-<h1>Usage</h1>
-<p>To run the application, use the following Maven command:</p>
-<pre><code>mvn exec:java -Dexec.mainClass="de.gribovskij.supdupmarket.Main"</code></pre>
-
-<p>This will start the application and display the product inventory, updating it for the specified number of days and removing expired or unsuitable products as needed.</p>
-
-<h1>Project Structure</h1>
-<ul>
-    <li><code>src/main/java</code>: Java source files</li>
-    <li><code>pom.xml</code>: Maven project configuration</li>
-</ul>
-
 <h1>Design Patterns</h1>
 <p>This project leverages various design patterns to enhance flexibility and maintainability:</p>
 <ol>
