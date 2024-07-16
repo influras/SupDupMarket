@@ -12,8 +12,6 @@
 <h1>Design Patterns</h1>
 <p>This project leverages various design patterns to enhance flexibility and maintainability:</p>
 <ol>
-<li>Strategy Pattern: Enables dynamic definition of different behaviors for products.</li>
-
 <li>Observer Pattern: Decouples product monitoring from shelf management for increased flexibility.</li> 
 
 <li>Factory Method Pattern: Centralizes the creation of product instances based on specific rules.</li>
