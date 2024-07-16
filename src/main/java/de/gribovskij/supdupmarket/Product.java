@@ -28,6 +28,8 @@ public class Product {
     // The date, when the product got added to a shelf
     private LocalDate storeDate;
 
+    private String productGroupName;
+
     private ProductGroup productGroup;
 
     private int currentQuality;
@@ -46,14 +48,15 @@ public class Product {
      * @param expiryDate the expiry date if perishable; otherwise must be set to
      * LocalDate.MAX
      * @param startQuality the initial quality; must be non-negative
-     * @param productGroup the product group; must not be {@code null}
+     * @param productGroupName the name associated to the product group
+     * @param productGroup the associated product group
      *
      * @throws IllegalArgumentException if {@code basePrice} or
      * {@code startQuality} is negative
      * @throws NullPointerException if {@code name} or {@code productGroup} is
      * {@code null}
      */
-    public Product(String name, double basePrice, LocalDate expiryDate, int startQuality, ProductGroup productGroup) {
+    public Product(String name, double basePrice, LocalDate expiryDate, int startQuality, String productGroupName, ProductGroup productGroup) {
         if (basePrice < 0) {
             throw new IllegalArgumentException("Base price cannot be negative");
         }
@@ -67,6 +70,7 @@ public class Product {
         }
         this.expiryDate = productGroup.getProductRule().isExpiring() ? expiryDate : LocalDate.MAX;
         this.startQuality = startQuality;
+        this.productGroupName = productGroupName;
         this.productGroup = productGroup;
     }
 
@@ -173,6 +177,89 @@ public class Product {
     }
 
     // Getter / Setter
+    /**
+     * Calculates the current quality of the product based on the rules defined
+     * in the associated ProductRuleSet. The calculation considers the elapsed
+     * time since the product was placed in the shelf.
+     *
+     * - If the quality is unchanging, the initial quality is returned. - If the
+     * quality increases, the quality is incremented based on the intervals and
+     * a defined increase factor, up to a maximum limit. - If the quality
+     * decreases, the quality is decremented based on the intervals and a
+     * defined decrease factor.
+     *
+     * @param currentDate the current date to compare against the storage date
+     * @return the calculated current quality
+     */
+    public int getCurrentQuality(LocalDate currentDate) {
+        ProductRuleSet productRuleSet = productGroup.getProductRule();
+
+        long daysBetweenStoreAndToday = ChronoUnit.DAYS.between(storeDate, currentDate);
+
+        // Calculates the number of intervals since shelving during which the quality changes
+        int qualityChangeIntervalls = 0;
+
+        // Calculates the number of intervals since shelving during which the quality changes
+        if (productRuleSet.getQualityChange() != ProductQualityChange.UNCHANGING) {
+            qualityChangeIntervalls = (int) (daysBetweenStoreAndToday / productRuleSet.getDaysUntilQualityChange());
+        }
+
+        if (productRuleSet.getQualityChange() == ProductQualityChange.UNCHANGING) {
+            return startQuality;
+        }
+
+        if (productRuleSet.getQualityChange() == ProductQualityChange.INCREASE) {
+            currentQuality = startQuality + (qualityChangeIntervalls * productRuleSet.getQualityChangeFactor());
+
+            if (currentQuality > productRuleSet.getHighestQualityBoundary()) {
+                return productRuleSet.getHighestQualityBoundary();
+            }
+
+        }
+
+        if (productRuleSet.getQualityChange() == ProductQualityChange.DECREASE) {
+            currentQuality = startQuality - (qualityChangeIntervalls * productRuleSet.getQualityChangeFactor());
+        }
+
+        return currentQuality;
+
+    }
+
+    /**
+     * Calculates the current price of the product based on its base price and
+     * current quality. If the product's price changes daily, the price is
+     * adjusted by adding a factor based on the quality. Additionally, if an
+     * expiry discount is applicable and today is exactly one day before the
+     * product's expiry date, the price is adjusted by subtracting a discount
+     * factor from the base price with quality adjustments.
+     *
+     * @param currentDate the current date used to calculate the current quality
+     * @return the current price of the product
+     */
+    public double getCurrentPrice(LocalDate currentDate) {
+        ProductRuleSet productRuleSet = productGroup.getProductRule();
+
+        double qualityPriceFactor = 0.10 * getCurrentQuality(currentDate);
+        double basePriceWithQualityFactor = basePrice + qualityPriceFactor;
+
+        int discountPercent = productRuleSet.getExpiryDiscountInPercent();
+        double discountFactor = discountPercent / 100.0;
+        double discountPriceFactor = basePriceWithQualityFactor * discountFactor;
+
+        LocalDate oneDayBeforeExpiry = expiryDate.minusDays(1);
+        boolean isOneDayBeforeExpiry = currentDate.isEqual(oneDayBeforeExpiry);
+
+        if (productRuleSet.isDailyPrice() && productRuleSet.isExpiryDiscount() && isOneDayBeforeExpiry) {
+            return basePriceWithQualityFactor - discountPriceFactor;
+        } else if (productRuleSet.isExpiryDiscount() && isOneDayBeforeExpiry || expiryDate.isEqual(currentDate)) {
+            return basePrice - discountPriceFactor;
+        } else if (productRuleSet.isDailyPrice()) {
+            return basePriceWithQualityFactor;
+        } else {
+            return basePrice;
+        }
+    }
+
     public String getName() {
         return name;
     }
@@ -205,68 +292,12 @@ public class Product {
         return storeDate;
     }
 
-    /**
-     * Calculates the current quality of the product based on the rules defined
-     * in the associated ProductRuleSet. The calculation considers the elapsed
-     * time since the product was placed in the shelf.
-     *
-     * - If the quality is unchanging, the initial quality is returned. - If the
-     * quality increases, the quality is incremented based on the intervals and
-     * a defined increase factor, up to a maximum limit. - If the quality
-     * decreases, the quality is decremented based on the intervals and a
-     * defined decrease factor.
-     *
-     * @param currentDate the current date to compare against the storage date
-     * @return the calculated current quality
-     */
-    public int getCurrentQuality(LocalDate currentDate) {
-        ProductRuleSet productRuleSet = productGroup.getProductRule();
-
-        long daysBetweenStoreAndToday = ChronoUnit.DAYS.between(storeDate, currentDate);
-
-        // Calculates the number of intervals since shelving during which the quality changes
-        int qualityChangeIntervalls = (int) (daysBetweenStoreAndToday / productRuleSet.getDaysUntilQualityChange());
-
-        if (productRuleSet.getQualityChange() == ProductQualityChange.UNCHANGING) {
-            return startQuality;
-        }
-
-        if (productRuleSet.getQualityChange() == ProductQualityChange.INCREASE) {
-            currentQuality = startQuality + (qualityChangeIntervalls * productRuleSet.getQualityChangeFactor());
-
-            if (currentQuality > productRuleSet.getHighestQualityBoundary()) {
-                return productRuleSet.getHighestQualityBoundary();
-            }
-
-        }
-
-        if (productRuleSet.getQualityChange() == ProductQualityChange.DECREASE) {
-            currentQuality = startQuality - (qualityChangeIntervalls * productRuleSet.getQualityChangeFactor());
-        }
-
-        return currentQuality;
-
+    public String getProductGroupName() {
+        return productGroupName;
     }
 
-    /**
-     * Calculates the current price of the product based on its base price and
-     * current quality. If the product's price changes daily, the price is
-     * adjusted by adding a factor based on the quality. Otherwise, the base
-     * price is returned.
-     *
-     * @param currentDate the current date used to calculate the current quality
-     * @return the current price of the product
-     */
-    public double getCurrentPrice(LocalDate currentDate) {
-        ProductRuleSet productRuleSet = productGroup.getProductRule();
-        if (productRuleSet.isDailyPrice()) {
-
-            return basePrice + (0.10 * getCurrentQuality(currentDate));
-
-        } else {
-            return basePrice;
-        }
-
+    public void setProductGroupName(String productGroupName) {
+        this.productGroupName = productGroupName;
     }
 
 }

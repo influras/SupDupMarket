@@ -5,6 +5,8 @@ package de.gribovskij.supdupmarket;
  * Each {@code ProductGroup} applies a set of rules from a
  * {@link ProductRuleSet} that dictate how products are managed within the
  * group.
+ * 
+ * @author Eugen Gribovskij
  */
 public class ProductGroup {
 

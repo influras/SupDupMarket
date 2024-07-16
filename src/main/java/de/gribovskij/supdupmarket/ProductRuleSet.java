@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * This class defines rules and boundarys for one product.
  *
- * @author Eugen
+ * @author Eugen Gribovskij
  */
 public class ProductRuleSet {
 
@@ -37,15 +37,27 @@ public class ProductRuleSet {
      */
     private final int daysUntilQualityChange;
 
-    public ProductRuleSet(boolean expiring, ProductQualityChange qualityChange, boolean dailyPrice, int qualityLeverage, int lowestQualityBoundary, int highestQualityBoundary, int daysUntilQualityChange) {
+    /**
+     * True if product get a discount for being clode to the expiry date
+     */
+    private final boolean expiryDiscount;
+
+    /**
+     * The expiry discount in percent on the current price
+     */
+    private final int expiryDiscountInPercent;
+
+    public ProductRuleSet(boolean expiring, ProductQualityChange qualityChange, boolean dailyPrice, int qualityChangeFactor, int lowestQualityBoundary, int highestQualityBoundary, int daysUntilQualityChange, boolean expiryDiscount, int expiryDiscountInPercent) {
         Objects.requireNonNull(qualityChange, "Must be initialized");
         this.expiring = expiring;
         this.qualityChange = qualityChange;
         this.dailyPrice = dailyPrice;
-        this.qualityChangeFactor = qualityLeverage;
+        this.qualityChangeFactor = qualityChangeFactor;
         this.lowestQualityBoundary = lowestQualityBoundary;
         this.highestQualityBoundary = highestQualityBoundary;
         this.daysUntilQualityChange = daysUntilQualityChange;
+        this.expiryDiscount = expiryDiscount;
+        this.expiryDiscountInPercent = expiryDiscountInPercent;
     }
 
     // Getter / Setter
@@ -75,6 +87,14 @@ public class ProductRuleSet {
 
     public int getDaysUntilQualityChange() {
         return daysUntilQualityChange;
+    }
+
+    public boolean isExpiryDiscount() {
+        return expiryDiscount;
+    }
+
+    public int getExpiryDiscountInPercent() {
+        return expiryDiscountInPercent;
     }
 
 }
